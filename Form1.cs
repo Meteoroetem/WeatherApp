@@ -34,7 +34,7 @@ namespace WeatherApp
                 weatherQuery = city.GetString() ?? "Tel Aviv";
             }
 
-            await using Stream wea therStream =
+            await using Stream weatherStream =
                 await client.GetStreamAsync(
                 $"http://api.weatherstack.com/current?access_key={WEATHER_API_KEY}&query={weatherQuery}");
             //Console.WriteLine(weatherStream.ToString());
