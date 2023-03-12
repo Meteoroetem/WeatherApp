@@ -29,7 +29,8 @@
         private void InitializeComponent()
         {
             pictureBox1 = new PictureBox();
-            label1 = new Label();
+            locationLabel = new Label();
+            temperatureLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -37,27 +38,39 @@
             // 
             pictureBox1.Location = new Point(79, 108);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(384, 213);
+            pictureBox1.Size = new Size(80, 67);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
             // 
-            // label1
+            // locationLabel
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
-            label1.Location = new Point(83, 44);
-            label1.Name = "label1";
-            label1.Size = new Size(377, 37);
-            label1.TabIndex = 1;
-            label1.Text = "Location: Mushroom Kingdom";
-            label1.Click += label1_Click;
+            locationLabel.AutoSize = true;
+            locationLabel.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
+            locationLabel.Location = new Point(83, 44);
+            locationLabel.Name = "locationLabel";
+            locationLabel.Size = new Size(125, 37);
+            locationLabel.TabIndex = 1;
+            locationLabel.Text = "Location:";
+            locationLabel.Click += label1_Click;
+            // 
+            // temperatureLabel
+            // 
+            temperatureLabel.AutoSize = true;
+            temperatureLabel.Font = new Font("Segoe UI", 30F, FontStyle.Regular, GraphicsUnit.Point);
+            temperatureLabel.Location = new Point(207, 114);
+            temperatureLabel.Name = "temperatureLabel";
+            temperatureLabel.Size = new Size(63, 54);
+            temperatureLabel.TabIndex = 2;
+            temperatureLabel.Text = "℃";
+            temperatureLabel.Click += label2_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(542, 355);
-            Controls.Add(label1);
+            Controls.Add(temperatureLabel);
+            Controls.Add(locationLabel);
             Controls.Add(pictureBox1);
             Name = "Form1";
             Text = "Form1";
@@ -70,6 +83,7 @@
         #endregion
 
         private PictureBox pictureBox1;
-        private Label label1;
+        private Label locationLabel;
+        private Label temperatureLabel;
     }
 }

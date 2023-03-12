@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Net.Http;
 
 namespace WeatherApp
@@ -16,9 +16,10 @@ namespace WeatherApp
             using HttpClient client = new();
             currentWeatherInfo weatherInfo = await GetCurrentWeatherIconsAsync(client);
             using Stream iconStream =
-                await client.GetStreamAsync(weatherInfo.IconsURLs[0]);
-            pictureBox1.Image = Bitmap.FromStream(iconStream);
-            label1.Text = $"Location: {weatherInfo.Location}";
+                await client.GetStreamAsync(weatherInfo.IconsUrls[0]);
+            pictureBox1.Image = Image.FromStream(iconStream);
+            locationLabel.Text = $"Location: {weatherInfo.Location}";
+            temperatureLabel.Text = $"{weatherInfo.Temperature}℃";
         }
 
         static async Task<currentWeatherInfo> GetCurrentWeatherIconsAsync(HttpClient client)
@@ -39,13 +40,15 @@ namespace WeatherApp
                 $"http://api.weatherstack.com/current?access_key={WEATHER_API_KEY}&query={weatherQuery}");
             //Console.WriteLine(weatherStream.ToString());
             List<string> iconURLs;
+            int temperature;
             using (JsonDocument weatherDocument = JsonDocument.Parse(weatherStream))
             {
                 JsonElement current = weatherDocument.RootElement.GetProperty("current");
                 JsonElement weatherIcons = current.GetProperty("weather_icons");
                 iconURLs = weatherIcons.Deserialize<List<string>>() ?? new();
+                temperature = current.GetProperty("temperature").GetInt16();
             }
-            return new currentWeatherInfo(weatherQuery, iconURLs);
+            return new currentWeatherInfo(iconURLs, weatherQuery, temperature);
         }
 
         public static async Task<string> GetPublicIPAddressAsync()
@@ -65,17 +68,14 @@ namespace WeatherApp
         {
 
         }
-    }
 
-
-    public struct currentWeatherInfo
-    {
-        public List<string> IconsURLs;
-        public string Location;
-        public currentWeatherInfo(string location, List<string> iconsURLs)
+        private void label2_Click(object sender, EventArgs e)
         {
-            Location = location;
-            IconsURLs = iconsURLs;
+
         }
     }
+
+
+    public record currentWeatherInfo(List<string> IconsUrls,
+        string Location, int Temperature);
 }
