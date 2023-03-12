@@ -13,13 +13,26 @@ namespace WeatherApp
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
             using HttpClient client = new();
+            locationLabel.Visible = false; temperatureLabel.Visible = false; pictureBox1.Visible = false;
+            humidityPrecentLabel.Visible = false; humidityLabel.Visible = false;
+            NetworkLoadingCircle.Enabled = true;
+            NetworkLoadingCircle.Image = Image.FromFile($"{projectDirectory}/output-onlinegiftools.gif");
+            NetworkLoadingCircle.Visible = true;
+
             currentWeatherInfo weatherInfo = await GetCurrentWeatherIconsAsync(client);
             using Stream iconStream =
                 await client.GetStreamAsync(weatherInfo.IconsUrls[0]);
+            NetworkLoadingCircle.Enabled = false;
+            NetworkLoadingCircle.Visible = false;
+            locationLabel.Visible = true; temperatureLabel.Visible = true; pictureBox1.Visible = true;
+            humidityPrecentLabel.Visible = true; humidityLabel.Visible = true;
             pictureBox1.Image = Image.FromStream(iconStream);
             locationLabel.Text = $"Location: {weatherInfo.Location}";
+            locationLabel.Location = new Point(Width / 2 - locationLabel.Width / 2, locationLabel.Location.Y);
             temperatureLabel.Text = $"{weatherInfo.Temperature}℃";
+            humidityPrecentLabel.Text = $"{weatherInfo.Humidity}%";
         }
 
         static async Task<currentWeatherInfo> GetCurrentWeatherIconsAsync(HttpClient client)
@@ -41,14 +54,16 @@ namespace WeatherApp
             //Console.WriteLine(weatherStream.ToString());
             List<string> iconURLs;
             int temperature;
+            int humidity;
             using (JsonDocument weatherDocument = JsonDocument.Parse(weatherStream))
             {
                 JsonElement current = weatherDocument.RootElement.GetProperty("current");
                 JsonElement weatherIcons = current.GetProperty("weather_icons");
                 iconURLs = weatherIcons.Deserialize<List<string>>() ?? new();
                 temperature = current.GetProperty("temperature").GetInt16();
+                humidity = current.GetProperty("humidity").GetInt16();
             }
-            return new currentWeatherInfo(iconURLs, weatherQuery, temperature);
+            return new currentWeatherInfo(iconURLs, weatherQuery, temperature, humidity);
         }
 
         public static async Task<string> GetPublicIPAddressAsync()
@@ -73,9 +88,22 @@ namespace WeatherApp
         {
 
         }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+        }
+
+        private void label2_Click_1(object sender, EventArgs e)
+        {
+        }
     }
 
 
     public record currentWeatherInfo(List<string> IconsUrls,
-        string Location, int Temperature);
+        string Location, int Temperature, int Humidity);
 }
