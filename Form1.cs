@@ -13,28 +13,41 @@ namespace WeatherApp
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
-            using HttpClient client = new();
-            locationLabel.Visible = false; temperatureLabel.Visible = false; pictureBox1.Visible = false;
-            humidityPrecentLabel.Visible = false; humidityLabel.Visible = false;
-            NetworkLoadingCircle.Enabled = true;
-            NetworkLoadingCircle.Image = Image.FromFile($"{projectDirectory}/output-onlinegiftools.gif");
-            NetworkLoadingCircle.Visible = true;
+            //setting controls' visbilty to false and showing the loading gif until get request is answered
+            LoadingScreen();
 
+            //getting the current weather information
+            using HttpClient client = new();
             currentWeatherInfo weatherInfo = await GetCurrentWeatherIconsAsync(client);
             using Stream iconStream =
                 await client.GetStreamAsync(weatherInfo.IconsUrls[0]);
             NetworkLoadingCircle.Enabled = false;
             NetworkLoadingCircle.Visible = false;
-            locationLabel.Visible = true; temperatureLabel.Visible = true; pictureBox1.Visible = true;
-            humidityPrecentLabel.Visible = true; humidityLabel.Visible = true;
+
             pictureBox1.Image = Image.FromStream(iconStream);
+            Bitmap iconBmp = new(pictureBox1.Image);
+            BackColor = Color.FromArgb(iconBmp.GetPixel(0, 0).ToArgb());
             locationLabel.Text = $"Location: {weatherInfo.Location}";
             locationLabel.Location = new Point(Width / 2 - locationLabel.Width / 2, locationLabel.Location.Y);
             temperatureLabel.Text = $"{weatherInfo.Temperature}℃";
             humidityPrecentLabel.Text = $"{weatherInfo.Humidity}%";
+            foreach (var description in weatherInfo.WeatherDescriptions)
+            {
+                descriptionLabel.Text += $"\n{description}";
+            }
+            descriptionLabel.Location = new Point(pictureBox1.Location.X + pictureBox1.Width/2
+                - descriptionLabel.Width / 2, pictureBox1.Location.Y + pictureBox1.Height);
+
+
+            ShowCurrentWeather(true);
         }
 
+        /// <summary>
+        /// After getting the IP address, it gets the city name associated with it. Sends an API request with
+        /// the query being the city name.
+        /// </summary>
+        /// <param name="client">A HTTP client to use for the requests</param>
+        /// <returns>An instance of currentWeatherInfo where it's properties are based on the API's response.</returns>
         static async Task<currentWeatherInfo> GetCurrentWeatherIconsAsync(HttpClient client)
         {
             string ipAddress = await GetPublicIPAddressAsync();
@@ -55,6 +68,7 @@ namespace WeatherApp
             List<string> iconURLs;
             int temperature;
             int humidity;
+            List<string> weatherDescriptions;
             using (JsonDocument weatherDocument = JsonDocument.Parse(weatherStream))
             {
                 JsonElement current = weatherDocument.RootElement.GetProperty("current");
@@ -62,10 +76,15 @@ namespace WeatherApp
                 iconURLs = weatherIcons.Deserialize<List<string>>() ?? new();
                 temperature = current.GetProperty("temperature").GetInt16();
                 humidity = current.GetProperty("humidity").GetInt16();
+                weatherDescriptions = current.GetProperty("weather_descriptions").Deserialize<List<string>>();
             }
-            return new currentWeatherInfo(iconURLs, weatherQuery, temperature, humidity);
+            return new currentWeatherInfo(iconURLs, weatherQuery, temperature, humidity, weatherDescriptions);
         }
 
+        /// <summary>
+        /// Get's the public IP address using an HTTP request.
+        /// </summary>
+        /// <returns>The public IP address of the device</returns>
         public static async Task<string> GetPublicIPAddressAsync()
         {
             string url = "http://checkip.dyndns.org";
@@ -77,6 +96,32 @@ namespace WeatherApp
             string[] responseArr = response.Split('<');
             response = responseArr[0];
             return response;
+        }
+
+        /// <summary>
+        /// Initiates the loading screen. Hides controls and shows a loading gif
+        /// </summary>
+        void LoadingScreen()
+        {
+            ShowCurrentWeather(false);
+            NetworkLoadingCircle.Enabled = true;
+            string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            NetworkLoadingCircle.Image = Image.FromFile($"{projectDirectory}/output-onlinegiftools.gif");
+            NetworkLoadingCircle.Visible = true;
+        }
+
+        /// <summary>
+        /// Set's the current weather info controls Visibility to <paramref name="value"/>
+        /// </summary>
+        /// <param name="value">True to show and false to hide</param>
+        void ShowCurrentWeather(bool value)
+        {
+            locationLabel.Visible = value;
+            temperatureLabel.Visible = value;
+            pictureBox1.Visible = value;
+            humidityPrecentLabel.Visible = value;
+            humidityLabel.Visible = value;
+            descriptionLabel.Visible = value;
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -105,5 +150,5 @@ namespace WeatherApp
 
 
     public record currentWeatherInfo(List<string> IconsUrls,
-        string Location, int Temperature, int Humidity);
+        string Location, int Temperature, int Humidity, List<string> WeatherDescriptions);
 }

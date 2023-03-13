@@ -34,13 +34,14 @@
             NetworkLoadingCircle = new PictureBox();
             humidityLabel = new Label();
             humidityPrecentLabel = new Label();
+            descriptionLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)NetworkLoadingCircle).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(79, 107);
+            pictureBox1.Location = new Point(90, 107);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(64, 64);
             pictureBox1.TabIndex = 0;
@@ -102,12 +103,22 @@
             humidityPrecentLabel.Text = "%";
             humidityPrecentLabel.Click += label2_Click_1;
             // 
+            // descriptionLabel
+            // 
+            descriptionLabel.AutoSize = true;
+            descriptionLabel.Font = new Font("Segoe UI", 17F, FontStyle.Regular, GraphicsUnit.Point);
+            descriptionLabel.Location = new Point(80, 176);
+            descriptionLabel.Name = "descriptionLabel";
+            descriptionLabel.Size = new Size(0, 31);
+            descriptionLabel.TabIndex = 6;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.SteelBlue;
             ClientSize = new Size(542, 355);
+            Controls.Add(descriptionLabel);
             Controls.Add(humidityPrecentLabel);
             Controls.Add(humidityLabel);
             Controls.Add(temperatureLabel);
@@ -131,5 +142,6 @@
         private PictureBox NetworkLoadingCircle;
         private Label humidityLabel;
         private Label humidityPrecentLabel;
+        private Label descriptionLabel;
     }
 }
